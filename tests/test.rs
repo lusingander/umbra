@@ -25,6 +25,7 @@ impl Default for Foo {
 #[derive(Debug, PartialEq, Eq)]
 struct Bar {
     name: String,
+    value: Option<i32>,
     ty: Type,
 }
 
@@ -32,6 +33,7 @@ impl Default for Bar {
     fn default() -> Self {
         Self {
             name: "bar".into(),
+            value: Some(50),
             ty: Type::default(),
         }
     }
@@ -53,6 +55,7 @@ fn test_into_1() {
         is_active: Some(false),
         bar: Some(OptionalBar {
             name: Some("BAR".into()),
+            value: Some(100),
             ty: Some(Type::C),
         }),
     };
@@ -62,6 +65,7 @@ fn test_into_1() {
         is_active: false,
         bar: Bar {
             name: "BAR".into(),
+            value: Some(100),
             ty: Type::C,
         },
     };
@@ -79,6 +83,7 @@ fn test_into_2() {
         is_active: Some(false),
         bar: Some(OptionalBar {
             name: None,
+            value: None,
             ty: Some(Type::C),
         }),
     };
@@ -88,6 +93,7 @@ fn test_into_2() {
         is_active: false,
         bar: Bar {
             name: "bar".into(),
+            value: Some(50),
             ty: Type::C,
         },
     };

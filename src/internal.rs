@@ -95,6 +95,8 @@ fn build_optional_struct_block(base_struct: ItemStruct, attributes: Attributes) 
                     }
                     _ => Type::Verbatim(quote! { Option<#field_type> }),
                 }
+            } else if is_option_type(field_type) {
+                Type::Verbatim(quote! { #field_type })
             } else {
                 Type::Verbatim(quote! { Option<#field_type> })
             };
@@ -107,7 +109,13 @@ fn build_optional_struct_block(base_struct: ItemStruct, attributes: Attributes) 
     let field_names: Vec<&Ident> = base_struct
         .fields
         .iter()
-        .filter(|field| !has_nested_attr(field))
+        .filter(|field| !has_nested_attr(field) && !is_option_type(&field.ty))
+        .map(|field| field.ident.as_ref().unwrap())
+        .collect();
+    let option_field_names: Vec<&Ident> = base_struct
+        .fields
+        .iter()
+        .filter(|field| is_option_type(&field.ty))
         .map(|field| field.ident.as_ref().unwrap())
         .collect();
     let nested_field_names: Vec<&Ident> = base_struct
@@ -131,6 +139,11 @@ fn build_optional_struct_block(base_struct: ItemStruct, attributes: Attributes) 
                     }
                 )*
                 #(
+                    if let Some(value) = optional.#option_field_names {
+                        base.#option_field_names = Some(value);
+                    }
+                )*
+                #(
                     if let Some(value) = optional.#nested_field_names {
                         base.#nested_field_names = value.into();
                     }
@@ -147,6 +160,15 @@ fn has_nested_attr(field: &syn::Field) -> bool {
 
 fn is_nested_attr(attr: &syn::Attribute) -> bool {
     attr.path().is_ident("nested")
+}
+
+fn is_option_type(ty: &Type) -> bool {
+    if let Type::Path(type_path) = ty {
+        let type_ident = &type_path.path.segments.first().unwrap().ident;
+        type_ident == "Option"
+    } else {
+        false
+    }
 }
 
 fn optional_struct_name(base_name: &Ident) -> Ident {
