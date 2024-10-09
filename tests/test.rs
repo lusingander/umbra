@@ -21,7 +21,7 @@ impl Default for Foo {
     }
 }
 
-#[umbra::optional]
+#[umbra::optional(derives = ["Debug", "Default"])]
 #[derive(Debug, PartialEq, Eq)]
 struct Bar {
     name: String,

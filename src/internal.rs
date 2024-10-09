@@ -1,27 +1,65 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{
-    parse::{ParseStream, Parser},
-    Error, Ident, ItemStruct, Result, Type,
+    parse::{Parse, ParseStream},
+    parse2,
+    punctuated::Punctuated,
+    Ident, ItemStruct, Result, Type,
 };
 
-pub(crate) fn opt_impl(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    opt_parse
-        .parse2(item)
-        .unwrap_or_else(Error::into_compile_error)
+pub(crate) fn opt_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let base_struct = parse2(item);
+    let attributes = parse2(attr);
+
+    match (base_struct, attributes) {
+        (Ok(base_struct), Ok(attributes)) => build(base_struct, attributes),
+        (Err(e), _) => e.to_compile_error(),
+        (_, Err(e)) => e.to_compile_error(),
+    }
 }
 
-fn opt_parse(input: ParseStream) -> Result<TokenStream> {
-    let base_struct: ItemStruct = input.parse()?;
+#[derive(Default, Clone)]
+struct Attributes {
+    derives: Vec<String>,
+}
 
+impl Parse for Attributes {
+    fn parse(input: ParseStream) -> Result<Self> {
+        if input.is_empty() {
+            return Ok(Self::default());
+        }
+
+        let mut attributes = Self::default();
+
+        while !input.is_empty() {
+            let ident: Ident = input.parse()?;
+
+            if ident == "derives" {
+                let _: syn::Token![=] = input.parse()?;
+
+                let content;
+                syn::bracketed!(content in input);
+                attributes.derives =
+                    Punctuated::<syn::LitStr, syn::Token![,]>::parse_terminated(&content)?
+                        .into_iter()
+                        .map(|lit| lit.value())
+                        .collect();
+            }
+        }
+
+        Ok(attributes)
+    }
+}
+
+fn build(base_struct: ItemStruct, attributes: Attributes) -> TokenStream {
     let original_struct_block = build_original_struct_block(base_struct.clone());
-    let optional_struct_block = build_optional_struct_block(base_struct.clone());
+    let optional_struct_block =
+        build_optional_struct_block(base_struct.clone(), attributes.clone());
 
-    let ts = quote! {
+    quote! {
         #original_struct_block
         #optional_struct_block
-    };
-    Ok(ts)
+    }
 }
 
 fn build_original_struct_block(mut base_struct: ItemStruct) -> TokenStream {
@@ -34,7 +72,12 @@ fn build_original_struct_block(mut base_struct: ItemStruct) -> TokenStream {
     }
 }
 
-fn build_optional_struct_block(base_struct: ItemStruct) -> TokenStream {
+fn build_optional_struct_block(base_struct: ItemStruct, attributes: Attributes) -> TokenStream {
+    let derives = attributes
+        .derives
+        .iter()
+        .map(|s| Ident::new(s, base_struct.ident.span()));
+
     let base_name = &base_struct.ident;
     let name = optional_struct_name(base_name);
     let fields: Vec<TokenStream> = base_struct
@@ -75,6 +118,7 @@ fn build_optional_struct_block(base_struct: ItemStruct) -> TokenStream {
         .collect();
 
     quote! {
+        #[derive(#(#derives),*)]
         struct #name {
             #(#fields)*
         }
