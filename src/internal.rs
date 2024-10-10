@@ -45,6 +45,10 @@ impl Parse for Attributes {
                         .map(|lit| lit.value())
                         .collect();
             }
+
+            if input.peek(syn::Token![,]) {
+                let _: syn::Token![,] = input.parse()?;
+            }
         }
 
         Ok(attributes)

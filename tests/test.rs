@@ -117,3 +117,15 @@ fn test_into_3() {
 
     assert_eq!(actual, expected);
 }
+
+#[test]
+fn test_derives() {
+    #[umbra::optional(derives = ["Debug", "Clone"])]
+    #[derive(Default)]
+    struct X {
+        value: i32,
+    }
+
+    let x = OptionalX { value: Some(10) };
+    let _ = format!("{:?}", x.clone()); // Should compile
+}
