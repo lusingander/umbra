@@ -1,5 +1,7 @@
 # umbra
 
+[![Crate Status](https://img.shields.io/crates/v/umbra.svg)](https://crates.io/crates/umbra)
+
 A macro to generate optional structs
 
 ## Usage
