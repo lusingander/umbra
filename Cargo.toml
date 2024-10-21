@@ -2,6 +2,15 @@
 name = "umbra"
 version = "0.1.0"
 edition = "2021"
+description = "A macro to generate optional structs"
+authors = ["Kyosuke Fujimoto <kyoro.f@gmail.com>"]
+documentation = "https://docs.rs/umbra/"
+homepage = "https://github.com/lusingander/umbra"
+repository = "https://github.com/lusingander/umbra"
+readme = "README.md"
+license = "MIT"
+keywords = ["macro", "struct", "option"]
+categories = ["rust-patterns"]
 
 [lib]
 proc-macro = true
