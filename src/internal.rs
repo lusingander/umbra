@@ -22,6 +22,7 @@ pub(crate) fn opt_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
 struct Attributes {
     derives: Vec<String>,
     prefix: String,
+    suffix: String,
 }
 
 impl Default for Attributes {
@@ -29,6 +30,7 @@ impl Default for Attributes {
         Self {
             derives: vec![],
             prefix: "Optional".into(),
+            suffix: "".into(),
         }
     }
 }
@@ -58,6 +60,10 @@ impl Parse for Attributes {
                 let _: syn::Token![=] = input.parse()?;
                 let lit: syn::LitStr = input.parse()?;
                 attributes.prefix = lit.value();
+            } else if ident == "suffix" {
+                let _: syn::Token![=] = input.parse()?;
+                let lit: syn::LitStr = input.parse()?;
+                attributes.suffix = lit.value();
             }
 
             if input.peek(syn::Token![,]) {
@@ -191,7 +197,7 @@ fn is_option_type(ty: &Type) -> bool {
 
 fn optional_struct_name(base_name: &Ident, attributes: &Attributes) -> Ident {
     Ident::new(
-        &format!("{}{}", attributes.prefix, base_name),
+        &format!("{}{}{}", attributes.prefix, base_name, attributes.suffix),
         base_name.span(),
     )
 }
