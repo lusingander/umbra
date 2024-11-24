@@ -18,9 +18,19 @@ pub(crate) fn opt_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 struct Attributes {
     derives: Vec<String>,
+    prefix: String,
+}
+
+impl Default for Attributes {
+    fn default() -> Self {
+        Self {
+            derives: vec![],
+            prefix: "Optional".into(),
+        }
+    }
 }
 
 impl Parse for Attributes {
@@ -44,6 +54,10 @@ impl Parse for Attributes {
                         .into_iter()
                         .map(|lit| lit.value())
                         .collect();
+            } else if ident == "prefix" {
+                let _: syn::Token![=] = input.parse()?;
+                let lit: syn::LitStr = input.parse()?;
+                attributes.prefix = lit.value();
             }
 
             if input.peek(syn::Token![,]) {
@@ -83,7 +97,7 @@ fn build_optional_struct_block(base_struct: ItemStruct, attributes: Attributes) 
         .map(|s| Ident::new(s, base_struct.ident.span()));
 
     let base_name = &base_struct.ident;
-    let name = optional_struct_name(base_name);
+    let name = optional_struct_name(base_name, &attributes);
     let fields: Vec<TokenStream> = base_struct
         .fields
         .iter()
@@ -94,7 +108,7 @@ fn build_optional_struct_block(base_struct: ItemStruct, attributes: Attributes) 
                 match field_type {
                     Type::Path(type_path) => {
                         let type_ident = &type_path.path.segments.first().unwrap().ident;
-                        let nested_struct_name = optional_struct_name(type_ident);
+                        let nested_struct_name = optional_struct_name(type_ident, &attributes);
                         Type::Verbatim(quote! { Option<#nested_struct_name> })
                     }
                     _ => Type::Verbatim(quote! { Option<#field_type> }),
@@ -175,6 +189,9 @@ fn is_option_type(ty: &Type) -> bool {
     }
 }
 
-fn optional_struct_name(base_name: &Ident) -> Ident {
-    Ident::new(&format!("Optional{}", base_name), base_name.span())
+fn optional_struct_name(base_name: &Ident, attributes: &Attributes) -> Ident {
+    Ident::new(
+        &format!("{}{}", attributes.prefix, base_name),
+        base_name.span(),
+    )
 }

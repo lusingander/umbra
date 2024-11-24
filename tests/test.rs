@@ -129,3 +129,26 @@ fn test_derives() {
     let x = OptionalX { value: Some(10) };
     let _ = format!("{:?}", x.clone()); // Should compile
 }
+
+#[test]
+fn test_prefix() {
+    #[umbra::optional(prefix = "Opt")]
+    #[derive(Default)]
+    struct X {
+        value: i32,
+    }
+
+    let _ = OptX { value: Some(10) }; // Should compile
+}
+
+#[test]
+fn test_derives_and_prefix() {
+    #[umbra::optional(derives = ["Debug", "Clone"], prefix = "Pre")]
+    #[derive(Default)]
+    struct X {
+        value: i32,
+    }
+
+    let x = PreX { value: Some(10) }; // Should compile
+    let _ = format!("{:?}", x.clone()); // Should compile
+}
