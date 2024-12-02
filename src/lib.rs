@@ -83,7 +83,7 @@
 //! ```
 //! use umbra::optional;
 //!
-//! #[optional(derives = ["Debug"])]
+//! #[optional(derives = [Debug])]
 //! #[derive(Default)]
 //! struct Bar {
 //!   name: String,

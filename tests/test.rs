@@ -21,7 +21,7 @@ impl Default for Foo {
     }
 }
 
-#[umbra::optional(derives = ["Debug", "Default"])]
+#[umbra::optional(derives = [Debug, Default])]
 #[derive(Debug, PartialEq, Eq)]
 struct Bar {
     name: String,
@@ -120,7 +120,7 @@ fn test_into_3() {
 
 #[test]
 fn test_derives() {
-    #[umbra::optional(derives = ["Debug", "Clone"])]
+    #[umbra::optional(derives = [Debug, std::clone::Clone])]
     #[derive(Default)]
     struct X {
         value: i32,
@@ -154,7 +154,7 @@ fn test_suffix() {
 
 #[test]
 fn test_attributes() {
-    #[umbra::optional(derives = ["Debug", "Clone"], prefix = "Pre", suffix = "Suf")]
+    #[umbra::optional(derives = [Debug, std::clone::Clone], prefix = "Pre", suffix = "Suf")]
     #[derive(Default)]
     struct X {
         value: i32,
