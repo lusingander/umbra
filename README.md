@@ -87,7 +87,7 @@ By using the `derives` attribute, the derive attribute can be added to the gener
 ```rs
 use umbra::optional;
 
-#[optional(derives = ["Debug"])]
+#[optional(derives = [Debug, std::clone::Clone])]
 #[derive(Default)]
 struct Bar {
   name: String,
@@ -104,7 +104,7 @@ struct Bar {
   value: Option<i32>,
 }
 
-#[derive(Debug)] // The derive attribute is added
+#[derive(Debug, std::clone::Clone)] // The derive attribute is added
 struct OptionalBar {
   name: Option<String>,
   value: Option<i32>,
