@@ -154,7 +154,14 @@ fn test_suffix() {
 
 #[test]
 fn test_attributes() {
-    #[umbra::optional(derives = [Debug, std::clone::Clone], prefix = "Pre", suffix = "Suf")]
+    #[umbra::optional(
+        derives = [
+            Debug,
+            std::clone::Clone,
+        ],
+        prefix = "Pre",
+        suffix = "Suf",
+    )]
     #[derive(Default)]
     struct X {
         value: i32,
