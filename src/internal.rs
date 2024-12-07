@@ -37,11 +37,11 @@ impl Default for Attributes {
 
 impl Parse for Attributes {
     fn parse(input: ParseStream) -> Result<Self> {
-        if input.is_empty() {
-            return Ok(Self::default());
-        }
-
         let mut attributes = Self::default();
+
+        if input.is_empty() {
+            return Ok(attributes);
+        }
 
         while !input.is_empty() {
             let ident: Ident = input.parse()?;
