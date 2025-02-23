@@ -153,6 +153,17 @@ fn test_suffix() {
 }
 
 #[test]
+fn test_visibility() {
+    #[umbra::optional(visibility = pub(crate))]
+    #[derive(Default)]
+    struct X {
+        value: i32,
+    }
+
+    let _ = OptionalX { value: Some(10) }; // Should compile
+}
+
+#[test]
 fn test_attributes() {
     #[umbra::optional(
         derives = [
@@ -161,6 +172,7 @@ fn test_attributes() {
         ],
         prefix = "Pre",
         suffix = "Suf",
+        visibility = pub,
     )]
     #[derive(Default)]
     struct X {

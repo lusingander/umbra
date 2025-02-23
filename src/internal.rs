@@ -23,6 +23,7 @@ struct Attributes {
     derives: Vec<syn::Path>,
     prefix: String,
     suffix: String,
+    visibility: syn::Visibility,
 }
 
 impl Default for Attributes {
@@ -31,6 +32,7 @@ impl Default for Attributes {
             derives: vec![],
             prefix: "Optional".into(),
             suffix: "".into(),
+            visibility: syn::Visibility::Inherited,
         }
     }
 }
@@ -63,6 +65,10 @@ impl Parse for Attributes {
                 let _: syn::Token![=] = input.parse()?;
                 let lit: syn::LitStr = input.parse()?;
                 attributes.suffix = lit.value();
+            } else if ident == "visibility" {
+                let _: syn::Token![=] = input.parse()?;
+                let vis: syn::Visibility = input.parse()?;
+                attributes.visibility = vis;
             }
 
             if input.peek(syn::Token![,]) {
@@ -145,9 +151,11 @@ fn build_optional_struct_block(base_struct: ItemStruct, attributes: Attributes) 
         .map(|field| field.ident.as_ref().unwrap())
         .collect();
 
+    let vis = &attributes.visibility;
+
     quote! {
         #[derive(#(#derives),*)]
-        struct #name {
+        #vis struct #name {
             #(#fields)*
         }
         impl From<#name> for #base_name {
