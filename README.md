@@ -157,6 +157,44 @@ impl From<PreFooSuf> for Foo {
 }
 ```
 
+### Visibility
+
+By using the `visibility` attribute, the visibility can be added to the generated struct:
+
+```rs
+use umbra::optional;
+
+#[optional(visibility = pub)]
+#[derive(Default)]
+struct Foo {
+  id: u32,
+  name: String,
+}
+```
+
+The macro generates following structs:
+
+```rs
+#[derive(Default)]
+struct Foo {
+  id: u32,
+  name: String,
+}
+
+pub struct OptionalFoo { // public
+  id: Option<u32>,
+  name: Option<String>,
+}
+
+impl From<OptionalFoo> for Foo {
+  fn from(optional: OptionalFoo) -> Self {
+      let mut base = Self::default();
+      // ...
+      base
+  }
+}
+```
+
 ## License
 
 MIT
