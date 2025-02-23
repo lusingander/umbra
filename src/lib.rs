@@ -85,9 +85,9 @@
 //!
 //! #[optional(derives = [Debug, std::clone::Clone])]
 //! #[derive(Default)]
-//! struct Bar {
+//! struct Foo {
+//!   id: u32,
 //!   name: String,
-//!   value: Option<i32>,
 //! }
 //! ```
 //!
@@ -95,19 +95,19 @@
 //!
 //! ```
 //! # #[derive(Default)]
-//! # struct Bar {
+//! # struct Foo {
+//! #   id: u32,
 //! #   name: String,
-//! #   value: Option<i32>,
 //! # }
 //! #
 //! #[derive(Debug, std::clone::Clone)] // The derive attribute is added
-//! struct OptionalBar {
+//! struct OptionalFoo {
+//!   id: Option<u32>,
 //!   name: Option<String>,
-//!   value: Option<i32>,
 //! }
 //!
-//! impl From<OptionalBar> for Bar {
-//!   fn from(optional: OptionalBar) -> Self {
+//! impl From<OptionalFoo> for Foo {
+//!   fn from(optional: OptionalFoo) -> Self {
 //!       let mut base = Self::default();
 //!       // ...
 //!       base
