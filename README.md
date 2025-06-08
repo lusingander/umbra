@@ -4,6 +4,57 @@
 
 A macro to generate optional structs
 
+## About
+
+Umbra provides a macro that generates the struct where each field in the struct is of type Option.
+
+### Why?
+
+For example, if you use serde to load a config file, you may find it a bit tedious to deal with optional settings. Umbra will generate the struct with optional fields and conversions back to the original struct, which may make writing such programs a little easier.
+
+Here is an example of usage:
+
+```rust
+// The target struct is marked as `umbra::optional`.
+// The generated struct is marked as `serde::Deserialize` as the derive.
+#[umbra::optional(derives = [serde::Deserialize])]
+#[derive(Debug)]
+struct Config {
+  log_level: String,
+  cache: bool,
+  timeout_seconds: usize,
+}
+
+impl Default for Config {
+  fn default() -> Self {
+    Config {
+      log_level: "warn".into(),
+      cache: true,
+      timeout_seconds: 30,
+    }
+  }
+}
+
+fn load_config(config_str: &str) -> Config {
+  // A struct definition with optional fields and `Into` the original struct are provided.
+  let config: OptionalConfig = toml::from_str(config_str).unwrap();
+  config.into()
+}
+
+fn main() {
+  // Any fields you specify will be set to their values,
+  // others will be set to the default values defined in the `Default` trait.
+  let config_str = r#"
+    timeout_seconds = 10
+  "#;
+  let config = load_config(config_str);
+
+  println!("{:?}", config);
+  // => Config { log_level: "warn", cache: true, timeout_seconds: 10 }
+}
+
+```
+
 ## Usage
 
 ### Basic
