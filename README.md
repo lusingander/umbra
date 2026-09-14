@@ -170,6 +170,43 @@ impl From<OptionalFoo> for Foo {
 }
 ```
 
+### Attributes
+
+By using the `attrs` attribute, attributes can be added to the generated struct:
+
+```rs
+use umbra::optional;
+
+#[optional(
+  derives = [serde::Deserialize],
+  attrs = [serde(deny_unknown_fields)],
+)]
+#[derive(Default)]
+struct Foo {
+  id: u32,
+  name: String,
+}
+```
+
+The macro generates following structs:
+
+```rs
+#[derive(Default)]
+struct Foo {
+  id: u32,
+  name: String,
+}
+
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)] // The attribute is added
+struct OptionalFoo {
+  id: Option<u32>,
+  name: Option<String>,
+}
+
+// `From<OptionalFoo>` implementation omitted
+```
+
 ### Prefix / Suffix
 
 By using the `prefix` and `suffix` attributes, the prefix and suffix of the generated struct are changed:

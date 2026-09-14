@@ -115,6 +115,41 @@
 //! }
 //! ```
 //!
+//! ## Attributes
+//!
+//! By using the `attrs` attribute, attributes can be added to the generated struct:
+//!
+//! ```
+//! use umbra::optional;
+//!
+//! #[optional(
+//!   derives = [serde::Deserialize],
+//!   attrs = [serde(deny_unknown_fields)],
+//! )]
+//! #[derive(Default)]
+//! struct Foo {
+//!   id: u32,
+//!   name: String,
+//! }
+//! ```
+//!
+//! The macro generates following structs:
+//!
+//! ```
+//! # #[derive(Default)]
+//! # struct Foo {
+//! #   id: u32,
+//! #   name: String,
+//! # }
+//! #
+//! #[derive(serde::Deserialize)]
+//! #[serde(deny_unknown_fields)] // The attribute is added
+//! struct OptionalFoo {
+//!   id: Option<u32>,
+//!   name: Option<String>,
+//! }
+//! ```
+//!
 //! ## Prefix / Suffix
 //!
 //! By using the `prefix` and `suffix` attributes, the prefix and suffix of the generated struct are changed:

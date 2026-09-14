@@ -21,6 +21,7 @@ pub(crate) fn opt_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[derive(Clone)]
 struct Attributes {
     derives: Vec<syn::Path>,
+    attrs: Vec<syn::Meta>,
     prefix: String,
     suffix: String,
     visibility: syn::Visibility,
@@ -30,6 +31,7 @@ impl Default for Attributes {
     fn default() -> Self {
         Self {
             derives: vec![],
+            attrs: vec![],
             prefix: "Optional".into(),
             suffix: "".into(),
             visibility: syn::Visibility::Inherited,
@@ -55,6 +57,15 @@ impl Parse for Attributes {
                 syn::bracketed!(content in input);
                 attributes.derives =
                     Punctuated::<syn::Path, syn::Token![,]>::parse_terminated(&content)?
+                        .into_iter()
+                        .collect();
+            } else if ident == "attrs" {
+                let _: syn::Token![=] = input.parse()?;
+
+                let content;
+                syn::bracketed!(content in input);
+                attributes.attrs =
+                    Punctuated::<syn::Meta, syn::Token![,]>::parse_terminated(&content)?
                         .into_iter()
                         .collect();
             } else if ident == "prefix" {
@@ -103,6 +114,7 @@ fn build_original_struct_block(mut base_struct: ItemStruct) -> TokenStream {
 
 fn build_optional_struct_block(base_struct: ItemStruct, attributes: Attributes) -> TokenStream {
     let derives = &attributes.derives;
+    let attrs = &attributes.attrs;
 
     let base_name = &base_struct.ident;
     let name = optional_struct_name(base_name, &attributes);
@@ -155,6 +167,7 @@ fn build_optional_struct_block(base_struct: ItemStruct, attributes: Attributes) 
 
     quote! {
         #[derive(#(#derives),*)]
+        #(#[#attrs])*
         #vis struct #name {
             #(#fields)*
         }

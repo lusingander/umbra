@@ -131,6 +131,24 @@ fn test_derives() {
 }
 
 #[test]
+fn test_attrs() {
+    #[umbra::optional(
+        derives = [serde::Deserialize],
+        attrs = [serde(deny_unknown_fields)],
+    )]
+    #[derive(Default)]
+    struct X {
+        value: i32,
+    }
+
+    let valid = serde_json::from_str::<OptionalX>(r#"{"value":10}"#);
+    let unknown = serde_json::from_str::<OptionalX>(r#"{"value":10,"unknown":20}"#);
+
+    assert!(valid.is_ok());
+    assert!(unknown.is_err());
+}
+
+#[test]
 fn test_prefix() {
     #[umbra::optional(prefix = "Opt")]
     #[derive(Default)]
