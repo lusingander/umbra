@@ -17,7 +17,8 @@ jobs:
     outputs:
       msrv: ${{ steps.get-msrv.outputs.msrv }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Get MSRV
         id: get-msrv
         run: |
@@ -32,12 +33,15 @@ jobs:
           - ${{ needs.prepare.outputs.msrv }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # latest commit as of 2026-09-12
         with:
           toolchain: ${{ matrix.versions }}
           components: rustfmt, clippy
-      - uses: Swatinem/rust-cache@v2
+      - name: Cache
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - name: Version
         run: |
           rustc --version
