@@ -2,6 +2,7 @@
 name = "umbra"
 version = "0.5.0"
 edition = "2021"
+rust-version = "1.71"
 description = "A macro to generate optional structs"
 authors = ["Kyosuke Fujimoto <kyoro.f@gmail.com>"]
 documentation = "https://docs.rs/umbra/"
